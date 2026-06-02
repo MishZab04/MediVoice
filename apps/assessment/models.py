@@ -11,6 +11,11 @@ class AssessmentStatus(models.TextChoices):
     ABANDONED = 'abandoned', 'Abandoned'
 
 
+class AssessmentPriority(models.TextChoices):
+    NORMAL = 'NORMAL', 'Normal'
+    URGENT = 'URGENT', 'Urgent'
+
+
 class AssessmentSession(models.Model):
     LANGUAGE_CHOICES = [
         ('en', 'English'),
@@ -30,11 +35,21 @@ class AssessmentSession(models.Model):
         related_name='assessment_sessions',
     )
     language = models.CharField(max_length=3, choices=LANGUAGE_CHOICES)
-    current_question = models.CharField(max_length=50)
+    # Stores the current AI-generated question text (no longer a fixed key)
+    current_question = models.TextField(default='')
     status = models.CharField(
         max_length=20,
         choices=AssessmentStatus.choices,
         default=AssessmentStatus.IN_PROGRESS,
+    )
+    # Full Claude messages array — persisted between API calls
+    conversation_history = models.JSONField(default=list)
+    # Filled when status becomes COMPLETED
+    assessment_report = models.TextField(blank=True, default='')
+    assessment_priority = models.CharField(
+        max_length=10,
+        choices=AssessmentPriority.choices,
+        default=AssessmentPriority.NORMAL,
     )
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -54,7 +69,10 @@ class AssessmentResponse(models.Model):
         on_delete=models.CASCADE,
         related_name='responses',
     )
+    # Sequential identifier: turn_0, turn_1, … — unique per session
     question_key = models.CharField(max_length=50)
+    # Full AI-generated question text asked at this turn
+    question_text = models.TextField(default='')
     answer_text = models.TextField()
     extracted_value = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

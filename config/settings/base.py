@@ -204,6 +204,10 @@ LOGGING = {
 
 MAX_UPLOAD_SIZE = 25 * 1024 * 1024  # 25 MB audio file limit
 
+# ── AI Clinical Interview Engine (Google Gemini) ───────────────────────────────
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+AI_ENGINE_MODEL = config('AI_ENGINE_MODEL', default='gemini-2.0-flash')
+
 LANGUAGE_CHOICES = [
     ('en', 'English'),
     ('fr', 'French'),

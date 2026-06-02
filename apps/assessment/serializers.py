@@ -15,7 +15,7 @@ class RespondSerializer(serializers.Serializer):
 class AssessmentResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssessmentResponse
-        fields = ['question_key', 'answer_text', 'extracted_value', 'created_at']
+        fields = ['question_key', 'question_text', 'answer_text', 'extracted_value', 'created_at']
 
 
 class AssessmentSessionSerializer(serializers.ModelSerializer):
@@ -27,6 +27,7 @@ class AssessmentSessionSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'patient', 'patient_name', 'health_worker',
             'language', 'current_question', 'status',
+            'assessment_priority', 'assessment_report',
             'started_at', 'completed_at', 'responses',
         ]
 

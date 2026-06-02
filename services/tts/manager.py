@@ -33,6 +33,34 @@ def get_audio_url(question_key: str, language: str) -> str | None:
     return None
 
 
+def generate_dynamic_audio(
+    text: str,
+    language: str,
+    session_id: str,
+    turn: int,
+) -> str | None:
+    """
+    Generate a TTS audio file on demand for an AI-generated question.
+
+    Files are stored as:  media/tts/dynamic_{session_id}_{turn}.mp3
+    Returns the MEDIA_URL path, or None on failure.
+    """
+    os.makedirs(TTS_DIR, exist_ok=True)
+    filename = f"dynamic_{session_id}_{turn}.mp3"
+    filepath = os.path.join(TTS_DIR, filename)
+
+    if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+        return f"{settings.MEDIA_URL}tts/{filename}"
+
+    service = _SERVICES.get(language, _SERVICES['en'])
+    try:
+        service.generate(text=text, output_path=filepath)
+        return f"{settings.MEDIA_URL}tts/{filename}"
+    except Exception as exc:
+        logger.error('Dynamic TTS failed for session %s turn %s: %s', session_id, turn, exc)
+        return None
+
+
 def generate_all_question_audio() -> dict[str, str]:
     """
     Pre-generate MP3 files for all 30 question/language combinations.
