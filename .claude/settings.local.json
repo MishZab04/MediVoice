@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(psql -U postgres -c \"ALTER USER medivoice_user CREATEDB;\")"
+    ]
+  }
+}

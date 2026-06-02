@@ -1,0 +1,35 @@
+# Core
+Django==6.0.5
+psycopg2-binary>=2.9.9
+
+# REST Framework
+djangorestframework>=3.15.2
+djangorestframework-simplejwt>=5.3.1
+
+# API Documentation
+drf-spectacular>=0.27.2
+
+# Filtering & Search
+django-filter>=24.3
+
+# CORS
+django-cors-headers>=4.4.0
+
+# Environment Variables
+python-decouple>=3.8
+
+# Image / File processing
+Pillow>=10.4.0
+
+# Text-to-Speech
+gTTS>=2.5.0
+edge-tts>=6.1.9
+
+# ── Future phases (uncomment when needed) ──────────────────────────────────────
+# openai-whisper               # Phase 6: STT primary
+# vosk                         # Phase 4: STT fallback
+# spacy                        # Phase 6: English NLP
+# fr-core-news-sm              # Phase 6: French spaCy model (install via spacy)
+# weasyprint                   # Phase 11: PDF generation
+# celery[redis]                # Async task queue (optional)
+# redis                        # Celery broker (optional)
