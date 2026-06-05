@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page {
+      size: A4;
+      margin: 1.8cm 1.8cm 1.8cm 1.8cm;
+      @frame footer_frame {
+        -pdf-frame-content: footer_content;
+        left: 1.8cm;
+        right: 1.8cm;
+        bottom: 0.4cm;
+        height: 1cm;
+      }
+      @frame watermark_frame {
+        -pdf-frame-content: watermark_content;
+        left: 3cm;
+        top: 7.5cm;
+        width: 15cm;
+        height: 15cm;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 10.5px;
+      color: #1a202c;
+      line-height: 1.55;
+    }
+
+    /* ══════════════════════════════════
+       HEADER (clean white style)
+    ══════════════════════════════════ */
+    .header-top-line {
+      height: 3px;
+      background: #20b59a;
+      margin-bottom: 0;
+    }
+    .header-bar {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px 4px;
+    }
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .header-table td { vertical-align: middle; }
+    .header-td-logo { width: 30%; padding: 0 12px 0 0; }
+    .header-td-title { width: 70%; text-align: center; padding: 0; }
+
+    .logo-img { height: 90px; width: auto; }
+    .logo-text-fallback {
+      color: #1a3360;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .logo-sub {
+      display: block;
+      color: #718096;
+      font-size: 8px;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+    .header-brand {
+      font-size: 13px;
+      color: #1a3360;
+      font-weight: bold;
+    }
+    .header-brand-sub {
+      font-size: 10px;
+      color: #4a5568;
+    }
+    .header-divider {
+      border: none;
+      border-top: 1px solid #cbd5e0;
+      margin: 6px 0;
+    }
+    .header-dates {
+      font-size: 9.5px;
+      color: #4a5568;
+      text-align: center;
+    }
+    .header-dates strong { color: #1a202c; }
+    .header-bottom-line {
+      height: 3px;
+      background: #20b59a;
+      margin-bottom: 4px;
+    }
+    .header-disclaimer {
+      text-align: center;
+      font-size: 8.5px;
+      font-weight: bold;
+      color: #2d3748;
+      letter-spacing: 0.5px;
+      padding: 5px 0 10px 0;
+    }
+
+    /* ══════════════════════════════════
+       PRIORITY BANNER
+    ══════════════════════════════════ */
+    .priority-urgent {
+      background: #fff5f5;
+      border-left: 5px solid #e53e3e;
+      padding: 8px 14px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #c53030;
+    }
+    .priority-normal {
+      background: #e8f8f6;
+      border-left: 5px solid #20b59a;
+      padding: 8px 14px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #1a3360;
+    }
+
+    /* ══════════════════════════════════
+       PATIENT INFO TABLE
+    ══════════════════════════════════ */
+    .block-title {
+      font-size: 9px;
+      font-weight: bold;
+      color: #1a3360;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border-bottom: 1.5px solid #a0ddd4;
+      padding-bottom: 3px;
+      margin-bottom: 7px;
+      margin-top: 14px;
+    }
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px;
+    }
+    .info-table td {
+      padding: 5px 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .info-table td.lbl {
+      background: #e8f8f6;
+      font-weight: bold;
+      color: #1a3360;
+      width: 22%;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .info-table td.val { color: #2d3748; width: 28%; }
+
+    /* ══════════════════════════════════
+       REPORT SECTIONS
+    ══════════════════════════════════ */
+    .report-body { margin-top: 4px; }
+
+    .section-header {
+      font-size: 10px;
+      font-weight: bold;
+      color: #1a3360;
+      background: #e8f8f6;
+      padding: 4px 8px;
+      margin-top: 11px;
+      margin-bottom: 4px;
+      border-left: 3px solid #20b59a;
+    }
+    .red-flag-header {
+      color: #c53030;
+      background: #fff5f5;
+      border-left: 3px solid #e53e3e;
+    }
+    .section-content { padding: 2px 8px; color: #2d3748; margin-bottom: 4px; }
+
+    .report-list { margin: 4px 0 4px 22px; padding: 0; }
+    .report-list li {
+      padding: 3px 0;
+      color: #2d3748;
+      border-bottom: 1px dotted #e2e8f0;
+    }
+    .report-list li:last-child { border-bottom: none; }
+    .bullet-key { font-weight: bold; color: #1a3360; margin-right: 4px; }
+    .bullet-val { color: #4a5568; }
+    .inline-key { font-weight: bold; color: #1a3360; }
+    .red-text { color: #c53030; font-weight: bold; }
+    p { margin: 3px 8px; color: #2d3748; }
+
+    .badge-urgent {
+      background: #e53e3e; color: white;
+      padding: 1px 7px; border-radius: 3px;
+      font-size: 10px; font-weight: bold;
+    }
+    .badge-normal {
+      background: #38a169; color: white;
+      padding: 1px 7px; border-radius: 3px;
+      font-size: 10px; font-weight: bold;
+    }
+    .disclaimer {
+      margin-top: 14px; padding: 8px;
+      background: #fffbeb; border: 1px solid #f6e05e;
+      font-size: 9.5px; color: #744210; font-style: italic;
+    }
+
+    /* ══════════════════════════════════
+       Q&A FORMAT (offline mode)
+    ══════════════════════════════════ */
+    .qa-question {
+      margin: 6px 8px 1px 8px;
+      color: #1a3360;
+      font-weight: bold;
+    }
+    .qa-answer {
+      margin: 1px 8px 6px 22px;
+      color: #2d3748;
+      border-bottom: 1px dotted #e2e8f0;
+      padding-bottom: 4px;
+    }
+    .qa-q { color: #20b59a; font-weight: bold; margin-right: 4px; }
+    .qa-a { color: #38a169; font-weight: bold; margin-right: 4px; }
+
+    /* ══════════════════════════════════
+       SIGNATURE
+    ══════════════════════════════════ */
+    .signature-section { margin-top: 28px; }
+    .signature-table { width: 100%; border-collapse: collapse; }
+    .signature-table td { padding: 0; vertical-align: bottom; }
+    .sig-right { text-align: right; width: 45%; }
+    .signature-line {
+      border-top: 1px solid #2d3748;
+      margin-bottom: 4px;
+      margin-top: 22px;
+    }
+    .sig-name { font-size: 10px; font-weight: bold; color: #1a202c; }
+    .sig-detail { font-size: 9px; color: #718096; }
+    .sig-italic { font-size: 9px; color: #718096; font-style: italic; }
+
+    /* ══════════════════════════════════
+       FOOTER (xhtml2pdf @frame)
+    ══════════════════════════════════ */
+    #footer_content {
+      border-top: 1.5px solid #20b59a;
+      padding-top: 4px;
+      font-size: 8px;
+    }
+    .footer-table { width: 100%; border-collapse: collapse; }
+    .footer-table td { padding: 0; vertical-align: middle; }
+    .footer-left { color: #718096; width: 60%; font-style: italic; }
+    .footer-right { color: #1a3360; text-align: right; width: 40%; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Watermark (rendered by @frame on every page) ─ -->
+  {% if watermark_src %}
+  <div id="watermark_content" style="text-align:center;">
+    <img src="{{ watermark_src }}" style="width:12cm;" alt="" />
+  </div>
+  {% endif %}
+
+  <!-- ── Footer (rendered by @frame on every page) ─── -->
+  <div id="footer_content">
+    <table class="footer-table">
+      <tr>
+        <td class="footer-left">
+          Confidential &mdash; For Healthcare Professional Review Only &mdash; Not a Diagnosis
+        </td>
+        <td class="footer-right">
+          Page <pdf:pagenumber> of <pdf:pagecount>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ── Header ───────────────────────────────────────── -->
+  <div class="header-top-line"></div>
+  <div class="header-bar">
+    <table class="header-table">
+      <tr>
+        <td class="header-td-logo">
+          {% if logo_src %}
+            <img src="{{ logo_src }}" class="logo-img" alt="MediVoice" />
+          {% else %}
+            <span class="logo-text-fallback">MediVoice</span>
+            <span class="logo-sub">Your Voice. Better Healthcare.</span>
+          {% endif %}
+        </td>
+        <td class="header-td-title">
+          <div class="header-brand">MediVoice &mdash; Multilingual Voice Health Assessment</div>
+          <div class="header-brand-sub">Ref: {{ session_id }} &nbsp;|&nbsp; {{ facility_name }}</div>
+          <hr class="header-divider" />
+          <div class="header-dates">
+            <strong>Printed:</strong> {{ generated_at }} at {{ generated_time }}
+            &nbsp;&nbsp;
+            <strong>Assessed:</strong> {{ assessment_date }}
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="header-bottom-line"></div>
+  <div class="header-disclaimer">FOR HEALTHCARE PROFESSIONAL REVIEW ONLY &mdash; NOT A DIAGNOSIS</div>
+
+  <!-- ── Priority Banner ──────────────────────────────── -->
+  {% if priority == 'URGENT' %}
+  <div class="priority-urgent">
+    &#9888; URGENT &mdash; This patient requires immediate medical attention. Please review and act promptly.
+  </div>
+  {% else %}
+  <div class="priority-normal">
+    &#10004; NORMAL &mdash; Routine medical review is recommended at your earliest convenience.
+  </div>
+  {% endif %}
+
+  <!-- ── Patient Information ──────────────────────────── -->
+  <div class="block-title">Patient Information</div>
+  <table class="info-table">
+    <tr>
+      <td class="lbl">Full Name</td><td class="val">{{ patient_name }}</td>
+      <td class="lbl">Date of Birth</td><td class="val">{{ patient_dob }}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Sex</td><td class="val">{{ patient_sex }}</td>
+      <td class="lbl">Phone</td><td class="val">{{ patient_phone }}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Location</td><td class="val">{{ patient_location }}</td>
+      <td class="lbl">Language</td><td class="val">{{ language_display }}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Health Worker</td><td class="val">{{ health_worker_name }}</td>
+      <td class="lbl">Facility</td><td class="val">{{ facility_name }}</td>
+    </tr>
+  </table>
+
+  <!-- ── Clinical Assessment ──────────────────────────── -->
+  <div class="block-title">Clinical Assessment</div>
+  <div class="report-body">
+    {{ report_html|safe }}
+  </div>
+
+  <!-- ── Signature ────────────────────────────────────── -->
+  <div class="signature-section">
+    <table class="signature-table">
+      <tr>
+        <td></td>
+        <td class="sig-right">
+          <div class="signature-line"></div>
+          <div class="sig-name">{{ health_worker_name }}</div>
+          <div class="sig-detail">Health Worker &nbsp;|&nbsp; {{ facility_name }}</div>
+          <div class="sig-italic">{{ generated_at }} &nbsp; {{ generated_time }}</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+</body>
+</html>

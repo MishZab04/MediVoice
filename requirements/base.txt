@@ -28,6 +28,9 @@ edge-tts>=6.1.9
 # AI Clinical Interview Engine
 google-genai>=1.0.0
 
+# PDF Report Generation
+xhtml2pdf>=0.2.11
+
 # ── Future phases (uncomment when needed) ──────────────────────────────────────
 # openai-whisper               # Phase 6: STT primary
 # vosk                         # Phase 4: STT fallback

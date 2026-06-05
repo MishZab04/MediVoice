@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
@@ -11,6 +11,7 @@ from drf_spectacular.views import (
 
 urlpatterns = [
     path('', RedirectView.as_view(url='api/docs/', permanent=False), name='root'),
+    path('voice-recorder/', TemplateView.as_view(template_name='voice_recorder.html'), name='voice-recorder'),
     path('admin/', admin.site.urls),
     # OpenAPI schema
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

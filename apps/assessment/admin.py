@@ -56,27 +56,21 @@ class SymptomFilter(admin.SimpleListFilter):
 
 def _priority_badge(priority):
     if not priority:
-        return mark_safe('<span style="color:#aaa">—</span>')
+        return mark_safe('<span style="background:#6c757d;color:white;padding:2px 10px;border-radius:12px;font-size:12px">—</span>')
     if priority == 'URGENT':
-        return mark_safe(
-            '<span style="background:#dc3545;color:white;padding:3px 10px;'
-            'border-radius:4px;font-weight:bold;font-size:12px">⚠ URGENT</span>'
-        )
-    return mark_safe(
-        '<span style="background:#28a745;color:white;padding:3px 10px;'
-        'border-radius:4px;font-size:12px">✔ NORMAL</span>'
-    )
+        return mark_safe('<span style="background:#dc3545;color:white;padding:2px 10px;border-radius:12px;font-size:12px">URGENT</span>')
+    return mark_safe('<span style="background:#28a745;color:white;padding:2px 10px;border-radius:12px;font-size:12px">NORMAL</span>')
 
 
 def _status_badge(status):
     colours = {
-        'in_progress': ('#007bff', '● IN PROGRESS'),
-        'completed':   ('#28a745', '✔ COMPLETED'),
-        'abandoned':   ('#6c757d', '✖ ABANDONED'),
+        'in_progress': ('#007bff', 'IN PROGRESS'),
+        'completed':   ('#28a745', 'COMPLETED'),
+        'abandoned':   ('#6c757d', 'ABANDONED'),
     }
     colour, label = colours.get(status, ('#6c757d', status.upper()))
     return format_html(
-        '<span style="color:{};font-weight:bold;font-size:12px">{}</span>',
+        '<span style="background:{};color:white;padding:2px 10px;border-radius:12px;font-size:12px">{}</span>',
         colour, label,
     )
 
