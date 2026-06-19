@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from apps.patients.serializers import PatientSerializer
 from .models import AssessmentSession, AssessmentResponse
 
 
@@ -20,16 +21,13 @@ class AssessmentResponseSerializer(serializers.ModelSerializer):
 
 class AssessmentSessionSerializer(serializers.ModelSerializer):
     responses = AssessmentResponseSerializer(many=True, read_only=True)
-    patient_name = serializers.SerializerMethodField()
+    patient = PatientSerializer(read_only=True)
 
     class Meta:
         model = AssessmentSession
         fields = [
-            'id', 'patient', 'patient_name', 'health_worker',
+            'id', 'patient', 'health_worker',
             'language', 'current_question', 'status',
             'assessment_priority', 'assessment_report',
             'started_at', 'completed_at', 'responses',
         ]
-
-    def get_patient_name(self, obj):
-        return obj.patient.full_name

@@ -11,7 +11,7 @@ logger = logging.getLogger('services')
 # {language} is replaced at runtime with the actual language name.
 
 _SYSTEM_PROMPT_TEMPLATE = """\
-You are the AI Clinical Interview Engine for MediVoice, a voice-guided patient assessment system.
+You are the AI Clinical Interview Engine for MediTok, a voice-guided patient assessment system.
 
 Your role is to conduct a natural, conversational medical interview with a patient through voice \
 interaction. You are NOT a diagnostic system and must never provide a final diagnosis. Your \
@@ -267,19 +267,19 @@ class InterviewEngine:
 
         if language == 'fr':
             return (
-                f"{greeting}{name} bienvenue sur MediVoice ! "
+                f"{greeting}{name} bienvenue sur MediTok ! "
                 "Je suis ici pour recueillir vos informations de santé pour votre professionnel de santé. "
                 "Dites-moi ce qui vous amène ici aujourd'hui."
             )
         if language == 'pcm':
             return (
-                f"{greeting}{name} welcome to MediVoice! "
+                f"{greeting}{name} welcome to MediTok! "
                 "I dey here to help gather your health information for your doctor. "
                 "Abeg tell me wetin bring you here today."
             )
         # English (default)
         return (
-            f"{greeting}{name} welcome to MediVoice! "
+            f"{greeting}{name} welcome to MediTok! "
             "I am here to help collect your health information for your healthcare worker. "
             "Please tell me what brings you here today."
         )
@@ -423,7 +423,7 @@ class InterviewEngine:
 
         if language == 'fr':
             report = (
-                "RAPPORT D'ÉVALUATION CLINIQUE — MediVoice\n"
+                "RAPPORT D'ÉVALUATION CLINIQUE — MediTok\n"
                 "(Généré en mode hors ligne — connexion IA indisponible)\n\n"
                 "RÉPONSES DU PATIENT:\n\n"
                 + qa_block +
@@ -432,7 +432,7 @@ class InterviewEngine:
             )
         else:
             report = (
-                "CLINICAL ASSESSMENT REPORT — MediVoice\n"
+                "CLINICAL ASSESSMENT REPORT — MediTok\n"
                 "(Generated in offline mode — AI connection unavailable)\n\n"
                 "PATIENT RESPONSES:\n\n"
                 + qa_block +

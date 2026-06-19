@@ -126,7 +126,7 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'MediVoice API',
+    'TITLE': 'MediTok API',
     'DESCRIPTION': (
         'Multilingual voice-based health data collection and monitoring system '
         'designed for low-literacy and underserved communities in Cameroon.'
@@ -149,6 +149,10 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:3000', cast=Csv())
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept', 'accept-encoding', 'authorization', 'content-type',
+    'dnt', 'origin', 'user-agent', 'x-csrftoken', 'x-requested-with',
+]
 
 LOGS_DIR = BASE_DIR / 'logs'
 os.makedirs(LOGS_DIR, exist_ok=True)
@@ -173,7 +177,7 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': str(LOGS_DIR / 'medivoice.log'),
+            'filename': str(LOGS_DIR / 'meditok.log'),
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 5,
             'formatter': 'verbose',

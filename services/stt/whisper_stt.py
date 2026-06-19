@@ -44,8 +44,8 @@ def _get_model():
     if _model is None:
         with _model_lock:
             if _model is None:
-                logger.info('Loading Whisper small model...')
-                _model = whisper.load_model('small')
+                logger.info('Loading Whisper base model...')
+                _model = whisper.load_model('base')
                 logger.info('Whisper model loaded.')
     return _model
 

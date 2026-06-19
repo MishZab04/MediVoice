@@ -218,6 +218,22 @@ class RespondView(APIView):
         })
 
 
+class SessionListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        responses={200: AssessmentSessionSerializer(many=True)},
+        summary='List assessment sessions',
+        description='Returns all sessions for the authenticated user. Admins see all sessions.',
+    )
+    def get(self, request):
+        qs = AssessmentSession.objects.select_related('patient', 'health_worker')
+        if not request.user.is_admin:
+            qs = qs.filter(health_worker=request.user)
+        sessions = qs.order_by('-started_at')[:20]
+        return Response(AssessmentSessionSerializer(sessions, many=True).data)
+
+
 class SessionDetailView(APIView):
     permission_classes = [IsAuthenticated, IsHealthWorker]
 
