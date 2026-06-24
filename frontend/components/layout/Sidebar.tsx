@@ -52,10 +52,10 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
         <div className="rounded-xl overflow-hidden flex-shrink-0">
-          <Image src="/meditok_logo.png" alt="MediTok" width={36} height={36} />
+          <Image src="/medivoice_logo.png" alt="MediVoice" width={36} height={36} />
         </div>
         <div>
-          <p className="text-white font-bold text-base leading-tight">MediTok</p>
+          <p className="text-white font-bold text-base leading-tight">MediVoice</p>
           <p className="text-white/50 text-[11px]">
             {isAdmin ? 'Administrator' : 'Health Worker'}
           </p>

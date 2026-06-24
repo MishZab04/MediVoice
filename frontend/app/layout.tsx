@@ -7,7 +7,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
-  title: 'MediTok',
+  title: 'MediVoice',
   description: 'Multilingual voice-based health assessment system',
 }
 

@@ -21,7 +21,7 @@ function getTitle(pathname: string): string {
   if (pathname.startsWith('/assessment/') && pathname.endsWith('/report')) return 'Assessment Report'
   if (pathname.startsWith('/assessment/')) return 'Assessment'
   if (pathname.startsWith('/patients/')) return 'Patient Details'
-  return 'MediTok'
+  return 'MediVoice'
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

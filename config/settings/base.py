@@ -126,7 +126,7 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'MediTok API',
+    'TITLE': 'MediVoice API',
     'DESCRIPTION': (
         'Multilingual voice-based health data collection and monitoring system '
         'designed for low-literacy and underserved communities in Cameroon.'
@@ -177,7 +177,7 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': str(LOGS_DIR / 'meditok.log'),
+            'filename': str(LOGS_DIR / 'medivoice.log'),
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 5,
             'formatter': 'verbose',

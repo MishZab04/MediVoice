@@ -169,7 +169,7 @@ def _highlight_priority(text: str) -> str:
 
 def _logo_path() -> str:
     from django.conf import settings
-    return os.path.join(settings.BASE_DIR, 'static', 'images', 'meditok_logo.png')
+    return os.path.join(settings.BASE_DIR, 'static', 'images', 'medivoice_logo.png')
 
 
 def _get_logo_base64() -> str:
@@ -186,7 +186,7 @@ def _get_logo_base64() -> str:
 def _get_watermark_base64() -> str:
     """
     Return base64 data URI of the logo icon only (cropped to top 52% to exclude
-    the MediTok text and tagline) at ~9% opacity for use as a page watermark.
+    the MediVoice text and tagline) at ~9% opacity for use as a page watermark.
     """
     import base64
     import io
@@ -195,7 +195,7 @@ def _get_watermark_base64() -> str:
     if not os.path.exists(path):
         return ''
     img = Image.open(path).convert('RGBA')
-    # Keep only the top 42% of the image (icon only — excludes "MediTok" text and tagline)
+    # Keep only the top 42% of the image (icon only — excludes "MediVoice" text and tagline)
     w, h = img.size
     img = img.crop((0, 0, w, int(h * 0.42)))
     # Reduce alpha to 10%

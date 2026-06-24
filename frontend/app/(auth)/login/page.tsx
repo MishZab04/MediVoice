@@ -41,11 +41,11 @@ export default function LoginPage() {
         {/* Brand */}
         <div className="flex flex-col items-center gap-3">
           <div className="rounded-2xl overflow-hidden shadow-sm ring-1 ring-black/5">
-            <Image src="/meditok_logo.png" alt="MediTok" width={72} height={72} priority />
+            <Image src="/medivoice_logo.png" alt="MediVoice" width={72} height={72} priority />
           </div>
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              MediTok
+              MediVoice
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">Your Voice. Better Healthcare.</p>
           </div>
