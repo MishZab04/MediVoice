@@ -11,15 +11,14 @@ if os.path.isdir(_FFMPEG_BIN) and _FFMPEG_BIN not in os.environ.get("PATH", ""):
 
 logger = logging.getLogger('services')
 
-# Language codes Whisper understands
 _WHISPER_LANGUAGES = {
     'en':  'en',
     'fr':  'fr',
-    'pcm': 'en',  # Pidgin → transcribe as English (closest model)
+    'pcm': 'en',  # Pidgin → transcribe as English (closest supported model)
 }
 
-# Initial prompts guide Whisper's acoustic model before it starts transcribing.
-# For Pidgin, this significantly reduces mis-transcription of common words.
+# Initial prompts guide the acoustic model before transcription starts.
+# For Pidgin, this reduces mis-transcription of common vocabulary.
 _INITIAL_PROMPTS = {
     'en': None,
     'fr': None,
@@ -38,21 +37,21 @@ _model = None
 _model_lock = threading.Lock()
 
 
-def _get_model():
-    """Load the Whisper model once and reuse it (lazy singleton)."""
+def _get_model() -> whisper.Whisper:
+    """Load the openai-whisper base model once and reuse it (lazy singleton)."""
     global _model
     if _model is None:
         with _model_lock:
             if _model is None:
-                logger.info('Loading Whisper base model...')
-                _model = whisper.load_model('base')
+                logger.info('Loading Whisper small model...')
+                _model = whisper.load_model('small')
                 logger.info('Whisper model loaded.')
     return _model
 
 
 def transcribe(audio_path: str, language: str = 'en') -> str:
     """
-    Transcribe an audio file to text using Whisper.
+    Transcribe an audio file to text using openai-whisper.
 
     audio_path: absolute path to the audio file (.wav, .mp3, .m4a, .webm, etc.)
     language:   session language code ('en', 'fr', 'pcm')
@@ -68,15 +67,14 @@ def transcribe(audio_path: str, language: str = 'en') -> str:
         audio_path,
         language=whisper_lang,
         initial_prompt=prompt,
-        fp16=False,             # fp16 needs a GPU; CPU mode uses fp32
-        verbose=False,
-        temperature=0,          # deterministic output, reduces hallucination
-        no_speech_threshold=0.6,  # return empty rather than hallucinate on silence
-        logprob_threshold=-1.0,   # filter out low-confidence segments
+        temperature=0,            # deterministic output, reduces hallucination
+        no_speech_threshold=0.6,  # skip silent/non-speech segments
+        logprob_threshold=-1.0,   # filter low-confidence segments
+        condition_on_previous_text=False,
     )
+
     text = result['text'].strip()
 
-    # Apply Pidgin normalization to clean up Whisper's mis-transcriptions
     if language == 'pcm':
         from services.normalization.pidgin import normalize
         text = normalize(text)

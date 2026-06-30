@@ -19,6 +19,24 @@ import { User, PaginatedResponse } from '@/types'
 
 const EMPTY_FORM = { first_name: '', last_name: '', email: '', password: '', phone_number: '', facility_name: '' }
 
+function StatusBadge({ worker }: { worker: User }) {
+  if (!worker.is_active) {
+    return <Badge variant="secondary" className="text-xs">Inactive</Badge>
+  }
+  if (!worker.is_approved) {
+    return (
+      <Badge className="text-xs text-white" style={{ backgroundColor: '#f59e0b' }}>
+        Pending
+      </Badge>
+    )
+  }
+  return (
+    <Badge className="text-xs text-white" style={{ backgroundColor: '#00B89C' }}>
+      Active
+    </Badge>
+  )
+}
+
 export default function HealthWorkersPage() {
   const router = useRouter()
 
@@ -70,6 +88,16 @@ export default function HealthWorkersPage() {
       toast.error('Failed to create health worker.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleApprove(id: string) {
+    try {
+      await api.post(`/auth/users/${id}/approve/`)
+      toast.success('User approved successfully.')
+      fetchWorkers(search)
+    } catch {
+      toast.error('Failed to approve user.')
     }
   }
 
@@ -172,15 +200,7 @@ export default function HealthWorkersPage() {
                     <TableCell className="font-medium">{w.first_name} {w.last_name}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{w.email}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{w.facility_name || '—'}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className="text-xs text-white"
-                        style={{ backgroundColor: w.is_active ? '#00B89C' : undefined }}
-                        variant={w.is_active ? 'default' : 'secondary'}
-                      >
-                        {w.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </TableCell>
+                    <TableCell><StatusBadge worker={w} /></TableCell>
                     <TableCell className="text-right">
                       {w.id !== me?.id && (
                         <DropdownMenu>
@@ -190,6 +210,11 @@ export default function HealthWorkersPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            {!w.is_approved && w.is_active && (
+                              <DropdownMenuItem onClick={() => handleApprove(w.id)} style={{ color: '#00B89C' }}>
+                                Approve account
+                              </DropdownMenuItem>
+                            )}
                             {w.is_active && (
                               <DropdownMenuItem className="text-destructive" onClick={() => handleDeactivate(w.id)}>
                                 Deactivate account

@@ -322,10 +322,10 @@ class InterviewEngine:
         # So N = (len - 2) // 2 maps to QUESTION_ORDER index.
         offline_index = max(0, (len(conversation_history) - 2) // 2)
 
-        client = genai.Client(api_key=settings.GEMINI_API_KEY)
         contents = conversation_history + [_msg("user", patient_answer)]
 
         try:
+            client = genai.Client(api_key=settings.GEMINI_API_KEY)
             response = client.models.generate_content(
                 model=settings.AI_ENGINE_MODEL,
                 contents=contents,
@@ -397,7 +397,7 @@ class InterviewEngine:
         language: str,
     ) -> InterviewResult:
         """
-        Build a structured report from the Q&A history when Gemini is
+        Build a structured narrative report from the Q&A history when Gemini is
         unavailable and all 10 fixed questions have been answered.
         History layout: [seed_user, opening_model, user, model, user, model, ...]
         Questions are at odd indices (1,3,5…), answers at even indices (2,4,6…).
@@ -418,29 +418,155 @@ class InterviewEngine:
             if not last_q.startswith('[Assessment'):
                 pairs.append((last_q, patient_answer))
 
-        lines = [f"Q: {q}\nA: {a}" for q, a in pairs]
-        qa_block = "\n\n".join(lines)
-
-        if language == 'fr':
-            report = (
-                "RAPPORT D'ÉVALUATION CLINIQUE — MediVoice\n"
-                "(Généré en mode hors ligne — connexion IA indisponible)\n\n"
-                "RÉPONSES DU PATIENT:\n\n"
-                + qa_block +
-                "\n\nNOTE: Ce rapport a été généré à partir du questionnaire hors ligne. "
-                "Il est destiné à la révision par un professionnel de santé uniquement."
-            )
-        else:
-            report = (
-                "CLINICAL ASSESSMENT REPORT — MediVoice\n"
-                "(Generated in offline mode — AI connection unavailable)\n\n"
-                "PATIENT RESPONSES:\n\n"
-                + qa_block +
-                "\n\nNOTE: This report was generated from the offline questionnaire. "
-                "It is intended for review by a healthcare professional only."
-            )
-
+        report = self._build_narrative_from_pairs(pairs, language)
         return InterviewResult(status='completed', priority='NORMAL', report=report)
+
+    def _build_narrative_from_pairs(self, pairs: list, language: str) -> str:
+        """Convert Q&A pairs into a structured clinical narrative report."""
+        from services.questionnaire.questions import QUESTIONS
+
+        # Build reverse lookup across all languages so Pidgin questions map to keys too
+        all_q_to_key: dict[str, str] = {}
+        for lang_qs in QUESTIONS.values():
+            for key, text in lang_qs.items():
+                all_q_to_key[text.strip().lower()] = key
+
+        chief_complaint = None
+        findings: dict[str, str] = {}
+
+        for q, a in pairs:
+            key = all_q_to_key.get(q.strip().lower())
+            if key is None:
+                if chief_complaint is None:
+                    chief_complaint = a.strip()
+            else:
+                findings[key] = a.strip()
+
+        use_french = (language == 'fr')
+        lines: list[str] = []
+
+        if use_french:
+            lines.append("Plaintes du patient:")
+            if chief_complaint:
+                lines.append(f"Le patient présente : {chief_complaint}")
+            if 'duration' in findings:
+                lines.append(f"Durée des symptômes : {findings['duration']}")
+
+            lines.append("")
+            lines.append("Symptômes:")
+            for key, label in [
+                ('fever',         'Fièvre'),
+                ('vomiting',      'Vomissements'),
+                ('body_weakness', 'Faiblesse corporelle'),
+                ('headache',      'Céphalées'),
+                ('dizziness',     'Vertiges'),
+                ('body_pain',     'Douleurs corporelles'),
+                ('appetite',      'Appétit'),
+            ]:
+                if key in findings:
+                    lines.append(f"- {label}: {findings[key]}")
+            if 'stomach_pain' in findings:
+                detail = findings['stomach_pain']
+                if 'pain_description' in findings:
+                    detail += f". {findings['pain_description']}"
+                lines.append(f"- Douleur abdominale: {detail}")
+
+            lines.append("")
+            lines.append("Antécédents médicaux:")
+            lines.append(
+                "Aucun antécédent médical n'a été collecté lors de cette session hors ligne. "
+                "Le professionnel de santé devra compléter cet historique lors de la consultation."
+            )
+
+            lines.append("")
+            lines.append("Médicaments:")
+            lines.append(
+                "Aucune information sur les médicaments n'a été collectée lors de cette session hors ligne."
+            )
+
+            lines.append("")
+            lines.append("Allergies:")
+            lines.append(
+                "Aucune information sur les allergies n'a été collectée lors de cette session hors ligne."
+            )
+
+            lines.append("")
+            lines.append("Priorité d'évaluation:")
+            lines.append(
+                "NORMAL — Ce rapport a été généré à partir d'un questionnaire hors ligne en raison d'une "
+                "indisponibilité de la connexion IA. Un professionnel de santé doit examiner les réponses "
+                "et déterminer la priorité clinique appropriée."
+            )
+
+            lines.append("")
+            lines.append(
+                "Note: Ce rapport a été généré en mode hors ligne (connexion IA indisponible). "
+                "Pour un bilan IA complet, assurez-vous d'avoir une connexion internet lors de la prochaine session. "
+                "Ce document est destiné à la révision par un professionnel de santé uniquement."
+            )
+
+        else:
+            # English — also used for Pidgin sessions
+            lines.append("Patient Complaints:")
+            if chief_complaint:
+                lines.append(f"Patient presents with: {chief_complaint}")
+            if 'duration' in findings:
+                lines.append(f"Duration of symptoms: {findings['duration']}")
+
+            lines.append("")
+            lines.append("Symptoms:")
+            for key, label in [
+                ('fever',         'Fever'),
+                ('vomiting',      'Vomiting'),
+                ('body_weakness', 'Body weakness'),
+                ('headache',      'Headache'),
+                ('dizziness',     'Dizziness'),
+                ('body_pain',     'Body pain'),
+                ('appetite',      'Appetite'),
+            ]:
+                if key in findings:
+                    lines.append(f"- {label}: {findings[key]}")
+            if 'stomach_pain' in findings:
+                detail = findings['stomach_pain']
+                if 'pain_description' in findings:
+                    detail += f". {findings['pain_description']}"
+                lines.append(f"- Stomach pain: {detail}")
+
+            lines.append("")
+            lines.append("Relevant Medical History and Risk Factors:")
+            lines.append(
+                "No medical history was collected during this offline assessment session. "
+                "The healthcare professional should obtain a full history during the consultation."
+            )
+
+            lines.append("")
+            lines.append("Medications:")
+            lines.append(
+                "No medication information was collected during this offline assessment session."
+            )
+
+            lines.append("")
+            lines.append("Allergies:")
+            lines.append(
+                "No allergy information was collected during this offline assessment session."
+            )
+
+            lines.append("")
+            lines.append("Assessment Priority:")
+            lines.append(
+                "NORMAL — This report was generated from an offline questionnaire due to unavailable "
+                "AI connectivity. A healthcare professional should review the patient responses and "
+                "determine appropriate clinical priority."
+            )
+
+            lines.append("")
+            lines.append(
+                "Note: This report was generated in offline mode (AI connection unavailable). "
+                "For a comprehensive AI-generated assessment, ensure internet connectivity for the next session. "
+                "This document is intended for review by a healthcare professional only."
+            )
+
+        return "\n".join(lines)
 
     def _offline_fallback(self, language: str, turn_index: int) -> InterviewResult:
         """

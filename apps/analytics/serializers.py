@@ -35,4 +35,5 @@ class SummarySerializer(serializers.Serializer):
     by_status = StatusBreakdownSerializer()
     # Admin-only fields — None for health workers
     total_health_workers = serializers.IntegerField(allow_null=True)
+    pending_approvals = serializers.IntegerField(allow_null=True)
     top_health_workers = TopWorkerSerializer(many=True, allow_null=True)

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Users, Mic2, AlertTriangle, CalendarCheck, Plus, ArrowRight } from 'lucide-react'
+import { Users, Mic2, AlertTriangle, CalendarCheck, Plus, ArrowRight, Clock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -96,6 +96,26 @@ export default function DashboardPage() {
         <StatCard title="Urgent Cases"       value={summary?.total_urgent}      icon={AlertTriangle} color="#f59e0b" loading={loadingSummary} />
         <StatCard title="Done This Week"     value={summary?.completed_this_week} icon={CalendarCheck} color="#6366f1" loading={loadingSummary} />
       </div>
+
+      {/* Admin: pending approvals banner */}
+      {isAdmin && (summary?.pending_approvals ?? 0) > 0 && (
+        <Link href="/health-workers" className="block">
+          <div className="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 hover:bg-amber-100 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-amber-100 flex items-center justify-center">
+                <Clock className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-amber-900">
+                  {summary!.pending_approvals} user{summary!.pending_approvals !== 1 ? 's' : ''} awaiting approval
+                </p>
+                <p className="text-xs text-amber-700">Click to review and approve pending health worker accounts</p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-amber-600 shrink-0" />
+          </div>
+        </Link>
+      )}
 
       {/* Language breakdown + Recent assessments */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

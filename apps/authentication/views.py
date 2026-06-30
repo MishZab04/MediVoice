@@ -1,6 +1,7 @@
 import logging
 
 from rest_framework import generics, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -86,14 +87,9 @@ class SignUpView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        refresh = RefreshToken.for_user(user)
-        logger.info('New health worker registered: %s', user.email)
+        logger.info('New health worker registered (pending approval): %s', user.email)
         return Response(
-            {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                'user': UserSerializer(user).data,
-            },
+            {'detail': 'Registration successful. Your account is pending admin approval. You will be able to log in once approved.'},
             status=status.HTTP_201_CREATED,
         )
 
@@ -117,6 +113,14 @@ class HealthWorkerViewSet(viewsets.ModelViewSet):
         return UserSerializer
 
     def perform_destroy(self, instance):
-        # Soft-delete: deactivate instead of hard delete to preserve audit trail
         instance.is_active = False
         instance.save(update_fields=['is_active'])
+
+    @action(detail=True, methods=['post'], url_path='approve')
+    def approve(self, request, pk=None):
+        worker = self.get_object()
+        worker.is_approved = True
+        worker.is_active = True
+        worker.save(update_fields=['is_approved', 'is_active'])
+        logger.info('Admin %s approved health worker %s', request.user.email, worker.email)
+        return Response({'detail': f'{worker.get_full_name()} has been approved.'}, status=status.HTTP_200_OK)

@@ -20,10 +20,8 @@ export function Topbar({ title }: TopbarProps) {
     <header className="h-14 border-b bg-background flex items-center px-4 gap-4 sticky top-0 z-10">
       {/* Mobile menu */}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="lg:hidden">
-            <Menu className="h-5 w-5" />
-          </Button>
+        <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden" />}>
+          <Menu className="h-5 w-5" />
         </SheetTrigger>
         <SheetContent side="left" className="p-0 w-64">
           <Sidebar onNavigate={() => setOpen(false)} />

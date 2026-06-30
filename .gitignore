@@ -40,3 +40,6 @@ logs/*.log
 
 # Docker
 .docker/
+
+# Mobile app (excluded from this project)
+mobile/

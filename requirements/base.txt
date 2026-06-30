@@ -31,9 +31,11 @@ google-genai>=1.0.0
 # PDF Report Generation
 xhtml2pdf>=0.2.11
 
+# Speech-to-Text
+faster-whisper>=1.0.0          # Phase 6: STT (CTranslate2-backed Whisper, medium model, int8 CPU)
+
 # ── Future phases (uncomment when needed) ──────────────────────────────────────
-# openai-whisper               # Phase 6: STT primary
-# vosk                         # Phase 4: STT fallback
+# vosk                         # STT fallback (offline, lightweight)
 # spacy                        # Phase 6: English NLP
 # fr-core-news-sm              # Phase 6: French spaCy model (install via spacy)
 # weasyprint                   # Phase 11: PDF generation

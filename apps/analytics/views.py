@@ -73,10 +73,17 @@ class SummaryView(APIView):
             'by_language': by_language,
             'by_status':   by_status,
             'total_health_workers': None,
+            'pending_approvals':    None,
             'top_health_workers':   None,
         }
 
         if user.role == UserRole.ADMIN:
+            data['pending_approvals'] = User.objects.filter(
+                role=UserRole.HEALTH_WORKER,
+                is_approved=False,
+                is_active=True,
+            ).count()
+
             data['total_health_workers'] = User.objects.filter(
                 role=UserRole.HEALTH_WORKER,
                 is_active=True,

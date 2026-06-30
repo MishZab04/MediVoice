@@ -3,12 +3,14 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import {
   LayoutDashboard,
   Users,
   Mic2,
   BarChart3,
   UserCog,
+  UserCheck,
   User,
   LogOut,
 } from 'lucide-react'
@@ -23,6 +25,7 @@ const navItems = [
   { label: 'Assessments',    href: '/assessment',       icon: Mic2,            adminOnly: false },
   { label: 'Analytics',      href: '/analytics',        icon: BarChart3,       adminOnly: true  },
   { label: 'Health Workers', href: '/health-workers',   icon: UserCog,         adminOnly: true  },
+  { label: 'Approvals',      href: '/approvals',        icon: UserCheck,       adminOnly: true  },
 ]
 
 interface SidebarProps {
@@ -34,6 +37,14 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const router = useRouter()
   const user = getUser()
   const isAdmin = user?.role === 'admin'
+  const [pendingCount, setPendingCount] = useState(0)
+
+  useEffect(() => {
+    if (!isAdmin) return
+    api.get<{ pending_approvals: number }>('/analytics/summary/')
+      .then((r) => setPendingCount(r.data.pending_approvals ?? 0))
+      .catch(() => {})
+  }, [isAdmin])
 
   async function handleLogout() {
     try {
@@ -80,7 +91,12 @@ export function Sidebar({ onNavigate }: SidebarProps) {
               style={active ? { backgroundColor: '#00B89C' } : undefined}
             >
               <item.icon className="h-4 w-4 flex-shrink-0" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.href === '/approvals' && pendingCount > 0 && (
+                <span className="ml-auto text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-5 text-center text-white" style={{ backgroundColor: '#f59e0b' }}>
+                  {pendingCount}
+                </span>
+              )}
             </Link>
           )
         })}

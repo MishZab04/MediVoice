@@ -8,6 +8,8 @@ export interface User {
   role: 'admin' | 'health_worker'
   phone_number: string
   facility_name: string
+  is_active: boolean
+  is_approved: boolean
   date_joined: string
 }
 
@@ -61,6 +63,7 @@ export interface AnalyticsSummary {
   by_language: { en: number; fr: number; pcm: number }
   by_status: { completed: number; in_progress: number; abandoned: number }
   total_health_workers: number | null
+  pending_approvals: number | null
   top_health_workers: TopWorker[] | null
 }
 

@@ -8,7 +8,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        # Embed user info in the JWT payload so clients don't need a separate /me call
         token['role'] = user.role
         token['email'] = user.email
         token['full_name'] = user.get_full_name()
@@ -16,7 +15,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        # Include the full user profile in the login response body
+        if not self.user.is_approved:
+            raise serializers.ValidationError(
+                'Your account is pending admin approval. You will be notified once approved.'
+            )
         data['user'] = UserSerializer(self.user).data
         return data
 
@@ -27,7 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'first_name', 'last_name',
             'role', 'phone_number', 'facility_name',
-            'is_active', 'date_joined',
+            'is_active', 'is_approved', 'date_joined',
         ]
         read_only_fields = ['id', 'date_joined', 'role']
 
@@ -41,6 +43,8 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
 
 
 class CreateHealthWorkerSerializer(serializers.ModelSerializer):
+    """Admin-created health workers are approved immediately."""
+
     password = serializers.CharField(write_only=True, min_length=8, style={'input_type': 'password'})
 
     class Meta:
@@ -50,11 +54,26 @@ class CreateHealthWorkerSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(
             role=UserRole.HEALTH_WORKER,
+            is_approved=True,
             **validated_data,
         )
 
 
-SignUpSerializer = CreateHealthWorkerSerializer
+class SignUpSerializer(serializers.ModelSerializer):
+    """Self-registration — account starts as pending approval."""
+
+    password = serializers.CharField(write_only=True, min_length=8, style={'input_type': 'password'})
+
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'password', 'phone_number', 'facility_name']
+
+    def create(self, validated_data):
+        return User.objects.create_user(
+            role=UserRole.HEALTH_WORKER,
+            is_approved=False,
+            **validated_data,
+        )
 
 
 class LogoutSerializer(serializers.Serializer):

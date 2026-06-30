@@ -107,20 +107,23 @@ def _parse_report_to_html(text: str) -> str:
             html.append('</ul>')
             in_list = False
 
-        # Detect section headers: lines ending with ":" or matching known headers
+        # Detect section headers: lines matching known headers (with or without trailing colon)
         is_header = False
         for header in _SECTION_HEADERS:
-            if line.lower().startswith(header.lower() + ':') or line.lower() == header.lower() + ':':
-                # Check if content follows on same line
+            header_lower = header.lower()
+            line_lower = line.lower()
+            if (
+                line_lower == header_lower
+                or line_lower == header_lower + ':'
+                or line_lower.startswith(header_lower + ':')
+            ):
                 rest = line[len(header):].lstrip(':').strip()
                 css_class = 'section-header'
-                # Red flags get special styling
-                if 'red flag' in header.lower() or 'drapeau' in header.lower():
+                if 'red flag' in header_lower or 'drapeau' in header_lower:
                     css_class = 'section-header red-flag-header'
                 html.append(f'<div class="{css_class}">{header}</div>')
                 if rest:
-                    # Highlight URGENT / NORMAL in priority section
-                    if 'priority' in header.lower() or 'priorité' in header.lower():
+                    if 'priority' in header_lower or 'priorité' in header_lower:
                         rest = _highlight_priority(rest)
                     html.append(f'<p class="section-content">{rest}</p>')
                 is_header = True

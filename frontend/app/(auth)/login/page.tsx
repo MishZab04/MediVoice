@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import { Clock } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -13,22 +14,32 @@ import api from '@/lib/api'
 import { saveTokens } from '@/lib/auth'
 import { AuthTokens } from '@/types'
 
+type LoginError = { response?: { data?: { non_field_errors?: string[]; detail?: string } } }
+
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [pendingApproval, setPendingApproval] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setPendingApproval(false)
     setLoading(true)
     try {
       const { data } = await api.post<AuthTokens>('/auth/login/', { email, password })
       saveTokens(data.access, data.refresh, data.user)
       toast.success(`Welcome back, ${data.user.first_name}!`)
       router.push('/dashboard')
-    } catch {
-      toast.error('Invalid email or password.')
+    } catch (err: unknown) {
+      const errData = (err as LoginError)?.response?.data
+      const msg = errData?.non_field_errors?.[0] ?? errData?.detail ?? ''
+      if (msg.toLowerCase().includes('pending')) {
+        setPendingApproval(true)
+      } else {
+        toast.error('Invalid email or password.')
+      }
     } finally {
       setLoading(false)
     }
@@ -58,6 +69,16 @@ export default function LoginPage() {
               <h2 className="text-lg font-semibold tracking-tight">Sign in</h2>
               <p className="text-sm text-muted-foreground">Enter your credentials to continue</p>
             </div>
+
+            {pendingApproval && (
+              <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-3">
+                <Clock className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-amber-900">Account pending approval</p>
+                  <p className="text-amber-700 mt-0.5">Your account is awaiting admin approval. You will be able to sign in once approved.</p>
+                </div>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
